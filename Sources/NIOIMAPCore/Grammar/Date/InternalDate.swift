@@ -20,7 +20,7 @@
 /// See RFC 3501 section 2.3.3. “Internal Date Message Attribute”
 ///
 /// IMAPv4 `date-time`
-public struct ServerMessageDate: Hashable {
+public struct ServerMessageDate: Hashable, Sendable {
     let rawValue: UInt64
 
     /// The components of the date, such as the day, month, year, etc.
@@ -73,7 +73,7 @@ public struct ServerMessageDate: Hashable {
 extension ServerMessageDate {
     /// Contains the individual components extracted from an `ServerMessageDate`, and can be used to
     /// construct an `ServerMessageDate`.
-    public struct Components {
+    public struct Components: Sendable {
         /// The year.
         public let year: Int
 

@@ -16,7 +16,7 @@ import struct NIO.ByteBuffer
 import struct OrderedCollections.OrderedDictionary
 
 extension BodyStructure {
-    public struct DispositionKind: Hashable, RawRepresentable {
+    public struct DispositionKind: Hashable, RawRepresentable, Sendable {
         public static let inline = Self(rawValue: "inline")
         public static let attachment = Self(rawValue: "attachment")
 
@@ -29,7 +29,7 @@ extension BodyStructure {
 
     /// A parsed representation of a parenthesized list containing a type string, and attribute/value pairs.
     /// Recomended reading: RFC 3501 § 7.4.2 and RFC 2183
-    public struct Disposition: Hashable {
+    public struct Disposition: Hashable, Sendable {
         /// The disposition type string.
         public var kind: DispositionKind
 

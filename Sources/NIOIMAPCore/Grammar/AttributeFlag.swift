@@ -16,25 +16,25 @@ import struct NIO.ByteBuffer
 
 /// Used when performing a search with `MODSEQ`. Note that this is similar to `Flag`, however `.recent`
 /// is not present.
-public struct AttributeFlag: Hashable {
+public struct AttributeFlag: Hashable, Sendable {
     /// The raw `String` to use as the flag.
     internal let stringValue: String
 
     // yep, we need 4, because the spec requires 2 literal \\ characters
     /// "\\Answered"
-    public static var answered = Self("\\\\Answered")
+    public static let answered = Self("\\\\Answered")
 
     /// "\\Flagged"
-    public static var flagged = Self("\\\\Flagged")
+    public static let flagged = Self("\\\\Flagged")
 
     /// "\\Deleted"
-    public static var deleted = Self("\\\\Deleted")
+    public static let deleted = Self("\\\\Deleted")
 
     /// "\\Seen"
-    public static var seen = Self("\\\\Seen")
+    public static let seen = Self("\\\\Seen")
 
     /// "\\Draft"
-    public static var draft = Self("\\\\Draft")
+    public static let draft = Self("\\\\Draft")
 
     /// Creates a new `AttributeFlag` from the give raw `String`.
     /// - parameter rawValue: The raw `String` to use as the flag. Will be lower-cased.

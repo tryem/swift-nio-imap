@@ -15,14 +15,14 @@
 import struct NIO.ByteBuffer
 
 /// Describes the metadata item type.
-public struct EntryKindResponse: Hashable {
+public struct EntryKindResponse: Hashable, Sendable {
     fileprivate var backing: String
 
     /// `priv` - Private metadata item type.
-    public static var `private` = Self(backing: "priv")
+    public static let `private` = Self(backing: "priv")
 
     /// `shared` - Shared metadata item type.
-    public static var shared = Self(backing: "shared")
+    public static let shared = Self(backing: "shared")
 }
 
 // MARK: - Encoding

@@ -15,18 +15,18 @@
 import struct NIO.ByteBuffer
 
 /// Specifies which type of metadata item to perform a search on.
-public struct EntryKindRequest: Hashable {
+public struct EntryKindRequest: Hashable, Sendable {
     fileprivate var backing: String
 
     /// Search private metadata items.
-    public static var `private` = Self(backing: "priv")
+    public static let `private` = Self(backing: "priv")
 
     /// Search shared metadata items.
-    public static var shared = Self(backing: "shared")
+    public static let shared = Self(backing: "shared")
 
     /// The server should use the largest value among `.private` and `.shared` mod-sequences
     /// for the metadata item.
-    public static var all = Self(backing: "all")
+    public static let all = Self(backing: "all")
 }
 
 // MARK: - Encoding

@@ -13,12 +13,12 @@
 //===----------------------------------------------------------------------===//
 
 import struct NIO.ByteBuffer
-import SE0270_RangeSet
+@preconcurrency import SE0270_RangeSet
 
 /// A set contains an array of `MessageIdentifierRange<MessageIdentifier>>` to represent a (potentially large) collection of messages.
 ///
 /// `MessageIdentifier`s are _not_ sorted.
-public struct MessageIdentifierSet<IdentifierType: MessageIdentifier>: Hashable {
+public struct MessageIdentifierSet<IdentifierType: MessageIdentifier>: Hashable, Sendable {
     /// A set that contains a single range, that in turn contains all messages.
     public static var all: Self {
         MessageIdentifierSet(MessageIdentifierRange<IdentifierType>.all)
@@ -139,7 +139,7 @@ extension MessageIdentifierSet {
 }
 
 extension MessageIdentifierSet {
-    public struct RangeView: RandomAccessCollection {
+    public struct RangeView: RandomAccessCollection, Sendable {
         fileprivate var underlying: RangeSet<MessageIdentificationShiftWrapper>.Ranges
 
         public var startIndex: Int { underlying.startIndex }
@@ -245,7 +245,7 @@ extension MessageIdentifierSet: ExpressibleByArrayLiteral {
 }
 
 extension MessageIdentifierSet: BidirectionalCollection {
-    public struct Index {
+    public struct Index: Sendable {
         fileprivate var rangeIndex: RangeSet<MessageIdentificationShiftWrapper>.Ranges.Index
         fileprivate var indexInRange: IdentifierType.Stride
     }

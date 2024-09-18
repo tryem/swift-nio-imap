@@ -17,7 +17,7 @@ public enum Media {}
 
 extension Media {
     /// An RFC 2045 media type, also known as MIME type.
-    public struct MediaType: Hashable {
+    public struct MediaType: Hashable, Sendable {
         public var topLevel: TopLevelType
         public var sub: Subtype
 
@@ -41,7 +41,7 @@ extension Media {
     /// The RFC 2045 “top-level type” of a “media type”.
     ///
     /// E.g. for `text/plain`, the top-level type is `text`.
-    public struct TopLevelType: CustomDebugStringConvertible, Hashable {
+    public struct TopLevelType: CustomDebugStringConvertible, Hashable, Sendable {
         /// application
         public static let multipart = Self("multipart")
 
@@ -100,7 +100,7 @@ extension Media {
     /// The RFC 2045 “subtype” of a “media type”.
     ///
     /// E.g. for `text/plain`, the subtype is `plain`.
-    public struct Subtype: CustomDebugStringConvertible, Hashable {
+    public struct Subtype: CustomDebugStringConvertible, Hashable, Sendable {
         /// When used with a `multipart` type, specifies the same data as different formats.
         public static let alternative = Self("alternative")
 
@@ -108,10 +108,10 @@ extension Media {
         public static let related = Self("related")
 
         /// When used with a `multipart` type, specifies a generic set of mixed data types.
-        public static var mixed = Self("mixed")
+        public static let mixed = Self("mixed")
 
         /// `message` sub-type.
-        public static var rfc822 = Self("rfc822")
+        public static let rfc822 = Self("rfc822")
 
         /// The subtype as a lowercased string
         internal let stringValue: String

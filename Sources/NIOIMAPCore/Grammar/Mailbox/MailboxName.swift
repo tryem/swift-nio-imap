@@ -39,7 +39,7 @@ public struct InvalidPathSeparatorError: Error, Equatable {
 /// Represents a complete mailbox path, delimited by the `pathSeparator`.
 /// For example, *foo/bar* is the `MailboxName`, and so "/" would be the `pathSeparator`.
 /// Path separators are optional, and so the simple `MailboxName` *foo* has `pathSeparator = nil`.
-public struct MailboxPath: Hashable {
+public struct MailboxPath: Hashable, Sendable {
     /// The full mailbox name, e.g. *foo/bar*
     public let name: MailboxName
 
@@ -191,7 +191,7 @@ extension MailboxPath {
 /// Since it’s common to use `MailboxName` as a key in a dictionary and/or compare
 /// `MailboxName` for equality, `MailboxName` will pre-calculate its hash value, and
 /// store it. As a result `Hashable` (and `Equatable`) performance is very fast.
-public struct MailboxName {
+public struct MailboxName: Sendable {
     /// Represents an inbox.
     public static let inbox = Self(ByteBuffer(string: "INBOX"))
 
@@ -242,7 +242,7 @@ extension MailboxName {
     /// A helper to store a hash value (for `Hashable` conformance) inside
     /// a `UInt32` (i.e. 4 bytes) even on platforms where `Int` is 64 bit.
     @usableFromInline
-    struct HashValue {
+    struct HashValue: Sendable {
         @usableFromInline
         let _value: UInt32
 
