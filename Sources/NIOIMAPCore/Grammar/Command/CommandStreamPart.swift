@@ -64,8 +64,8 @@ public enum AppendCommand: Hashable, Sendable {
         case .start(let tag, _):
             return tag
         case .beginMessage, .messageBytes, .endMessage,
-             .beginCatenate, .catenateURL, .catenateData,
-             .endCatenate, .finish:
+            .beginCatenate, .catenateURL, .catenateData,
+            .endCatenate, .finish:
             return nil
         }
     }
@@ -130,6 +130,15 @@ extension CommandStreamPart: CustomDebugStringConvertible {
             $0.writeCommandStream(self)
         }
     }
+
+    /// Creates a string from the array of `CommandStreamPart` with all _personally identifiable information_ redacted.
+    public static func descriptionWithoutPII(_ parts: some Sequence<CommandStreamPart>) -> String {
+        CommandEncodeBuffer.makeDescription(loggingMode: true) {
+            for p in parts {
+                $0.writeCommandStream(p)
+            }
+        }
+    }
 }
 
 extension CommandEncodeBuffer {
@@ -162,8 +171,7 @@ extension CommandEncodeBuffer {
         switch command {
         case .start(tag: let tag, appendingTo: let mailbox):
             return
-                self.buffer.writeString("\(tag) APPEND ") +
-                self.buffer.writeMailbox(mailbox)
+                self.buffer.writeString("\(tag) APPEND ") + self.buffer.writeMailbox(mailbox)
         case .beginMessage(message: let message):
             return self.buffer.writeAppendMessage(message)
         case .messageBytes(var bytes):
@@ -175,19 +183,18 @@ extension CommandEncodeBuffer {
             }
             return 0
         case .beginCatenate(options: let options):
-            return self.buffer.writeAppendOptions(options) +
-                self.buffer.writeString(" CATENATE (")
+            return self.buffer.writeAppendOptions(options) + self.buffer.writeString(" CATENATE (")
         case .catenateURL(let url):
             defer {
                 self.encodedAtLeastOneCatenateElement = true
             }
 
-            return self.buffer.write(if: self.encodedAtLeastOneCatenateElement) { self.buffer.writeSpace() } +
-                self.buffer.writeString("URL ") +
-                self.buffer.writeIMAPString(url)
+            return self.buffer.write(if: self.encodedAtLeastOneCatenateElement) { self.buffer.writeSpace() }
+                + self.buffer.writeString("URL ") + self.buffer.writeIMAPString(url)
         case .catenateData(.begin(let size)):
-            var written = self.buffer.write(if: self.encodedAtLeastOneCatenateElement) { self.buffer.writeSpace() } +
-                self.buffer.writeString("TEXT ")
+            var written =
+                self.buffer.write(if: self.encodedAtLeastOneCatenateElement) { self.buffer.writeSpace() }
+                + self.buffer.writeString("TEXT ")
 
             if self.options.useNonSynchronizingLiteralPlus {
                 written += self.buffer.writeString("{\(size)+}\r\n")
