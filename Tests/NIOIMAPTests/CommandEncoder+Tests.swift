@@ -120,6 +120,10 @@ extension CommandEncoder_Tests {
                 "3 LOGIN \"∅\" {5+}\r\n∅\r\n", #line
             ),
             (
+                .tagged(.init(tag: "3", command: .uidExpunge(.set([1...2])))),
+                "3 UID EXPUNGE 1:2\r\n", #line
+            ),
+            (
                 .tagged(
                     .init(
                         tag: "B23",
