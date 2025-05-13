@@ -131,6 +131,11 @@ extension GrammarParser {
         )
     }
 
+    func parseMailboxID(buffer: inout ParseBuffer, tracker: StackTracker) throws -> MailboxID {
+        let objectID = try parseObjectID(buffer: &buffer, tracker: tracker)
+        return MailboxID(objectID)
+    }
+
     // mailbox-list    = "(" [mbx-list-flags] ")" SP
     //                    (DQUOTE QUOTED-CHAR DQUOTE / nil) SP mailbox
     //                    [SP mbox-list-extended]
@@ -274,7 +279,8 @@ extension GrammarParser {
             case size(Int)
             case recent(Int)
             case highestModifierSequence(ModificationSequenceValue)
-            case appendLimit(Int)
+            case appendLimit(Int?)
+            case mailboxID(MailboxID)
         }
 
         func parseStatusAttributeValue_messages(buffer: inout ParseBuffer, tracker: StackTracker) throws -> MailboxValue
@@ -325,7 +331,39 @@ extension GrammarParser {
             tracker: StackTracker
         ) throws -> MailboxValue {
             try PL.parseFixedString("APPENDLIMIT ", buffer: &buffer, tracker: tracker)
-            return .appendLimit(try self.parseNumber(buffer: &buffer, tracker: tracker))
+
+            func parseStatusAttributeValue_appendLimit_nil(
+                buffer: inout ParseBuffer,
+                tracker: StackTracker
+            ) throws -> MailboxValue {
+                try self.parseNil(buffer: &buffer, tracker: tracker)
+                return .appendLimit(nil)
+            }
+            func parseStatusAttributeValue_appendLimit_number(
+                buffer: inout ParseBuffer,
+                tracker: StackTracker
+            ) throws -> MailboxValue {
+                return .appendLimit(try self.parseNumber(buffer: &buffer, tracker: tracker))
+            }
+
+            return try PL.parseOneOf(
+                [
+                    parseStatusAttributeValue_appendLimit_nil,
+                    parseStatusAttributeValue_appendLimit_number,
+                ],
+                buffer: &buffer,
+                tracker: tracker
+            )
+        }
+
+        func parseStatusAttributeValue_mailboxID(
+            buffer: inout ParseBuffer,
+            tracker: StackTracker
+        ) throws -> MailboxValue {
+            try PL.parseFixedString("MAILBOXID (", buffer: &buffer, tracker: tracker)
+            let mailboxID = try self.parseMailboxID(buffer: &buffer, tracker: tracker)
+            try PL.parseFixedString(")", buffer: &buffer, tracker: tracker)
+            return .mailboxID(mailboxID)
         }
 
         func parseStatusAttributeValue(buffer: inout ParseBuffer, tracker: StackTracker) throws -> MailboxValue {
@@ -339,6 +377,7 @@ extension GrammarParser {
                     parseStatusAttributeValue_modificationSequence,
                     parseStatusAttributeValue_recent,
                     parseStatusAttributeValue_appendLimit,
+                    parseStatusAttributeValue_mailboxID,
                 ],
                 buffer: &buffer,
                 tracker: tracker
@@ -373,6 +412,8 @@ extension GrammarParser {
                     status.recentCount = recent
                 case .appendLimit(let limit):
                     status.appendLimit = limit
+                case .mailboxID(let id):
+                    status.mailboxID = id
                 }
             }
             return status
